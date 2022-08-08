@@ -116,7 +116,7 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def validate_params(self, test):
-        regex = r'^([a-zA-Z_]\w*)=(".+"|\d+|-?[0-9]+\.[0-9]+|\[.*\])$'
+        regex = r'^([a-zA-Z_]\w*)=(".+"|-?\d+|-?[0-9]+\.[0-9]+|\[.*\])$'
         obj = re.search(regex, test)
 
         if (obj is not None):
@@ -125,7 +125,6 @@ class HBNBCommand(cmd.Cmd):
             if (re.search(r'^".+"$', obj[1]) is not None):
                 obj[1] = obj[1][1:-1]
                 length = len(obj[1])
-
                 if ('"' in obj[1]):
                     for i in range(length):
                         if (length == 1 and obj[1][0] == '"'):
@@ -133,11 +132,10 @@ class HBNBCommand(cmd.Cmd):
                         if (obj[1][i] == '"' and obj[1][i - 1] != '\\'):
                             return (None)
                 obj[1] = obj[1].replace("_", " ")
-                # obj[1] = obj[1].replace("\\\\", "\\")
                 obj[1] = obj[1].replace('\\"', '"')
             elif (re.search(r"[0-9]+\.[0-9]+", obj[1]) is not None):
                 obj[1] = float(obj[1])
-            elif (obj[1].isnumeric()):
+            elif (re.search(r'-?[0-9]', obj[1])):
                 obj[1] = int(obj[1])
             elif (re.search(r"^\[.*\]$", obj[1]) is not None):
                 obj[1] = json.loads(obj[1])
@@ -147,7 +145,7 @@ class HBNBCommand(cmd.Cmd):
     def splitter(self, string):
         final_list = []
         flag = 1
-        tmp = ""
+        tmp = ''
         for char in string:
             if (char == "["):
                 flag = 0
@@ -159,7 +157,7 @@ class HBNBCommand(cmd.Cmd):
                 continue
             tmp += char
 
-        if (tmp != ""):
+        if (tmp != ''):
             final_list.append(tmp)
 
         return (final_list)
@@ -183,16 +181,16 @@ class HBNBCommand(cmd.Cmd):
             res = self.validate_params(params[idx])
 
             if (res is None):
-                #print("The format is wrong: <key>=<value>")
+                # print("The format is wrong: <key>=<value>")
                 continue
 
             if (not hasattr(self.classes[params[0]], res[0])):
-                #print("The key doesn't exists in the class {params[0]}")
+                # print(f"The key doesn't exists in the class {params[0]}")
                 continue
 
             if (isinstance(type(self.classes[params[0]].__dict__[res[0]]),
                            type(res[1]))):
-                #print("The type of the value doesn't match")
+                # print("The type of the value doesn't match")
                 continue
 
             valid_params.append(res)
@@ -201,7 +199,6 @@ class HBNBCommand(cmd.Cmd):
         for record in valid_params:
             setattr(new_instance, record[0], record[1])
 
-        # print(new_instance)
         storage.save()
         print(new_instance.id)
 
