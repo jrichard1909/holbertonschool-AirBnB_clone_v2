@@ -179,7 +179,7 @@ class HBNBCommand(cmd.Cmd):
 
         valid_params = []
 
-        for idx in range(1, size_params):
+        """for idx in range(1, size_params):
             res = self.validate_params(params[idx])
 
             if (res is None):
@@ -193,7 +193,7 @@ class HBNBCommand(cmd.Cmd):
             if (isinstance(type(self.classes[params[0]].__dict__[res[0]]),
                            type(res[1]))):
                 print("The type of the value doesn't match")
-                continue
+                continue"""
 
             valid_params.append(res)
 
