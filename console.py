@@ -179,21 +179,21 @@ class HBNBCommand(cmd.Cmd):
 
         valid_params = []
 
-        """for idx in range(1, size_params):
+        for idx in range(1, size_params):
             res = self.validate_params(params[idx])
 
             if (res is None):
-                print("The format is wrong: <key>=<value>")
+                """print("The format is wrong: <key>=<value>")"""
                 continue
 
             if (not hasattr(self.classes[params[0]], res[0])):
-                print(f"The key doesn't exists in the class {params[0]}")
+                """print(f"The key doesn't exists in the class {params[0]}")"""
                 continue
 
             if (isinstance(type(self.classes[params[0]].__dict__[res[0]]),
                            type(res[1]))):
-                print("The type of the value doesn't match")
-                continue"""
+                """print("The type of the value doesn't match")"""
+                continue
 
             valid_params.append(res)
 
