@@ -6,7 +6,7 @@ from models import storage_type
 from sqlalchemy.orm import relationship
 
 
-class City(BaseModel):
+class City(BaseModel, Base):
     """ The city class, contains state ID and name """
 
     if storage_type == 'db':
@@ -15,5 +15,5 @@ class City(BaseModel):
         name = Column(String(128), nullable=False)
         places = relationship('Place', backref='city', cascade="all")
     else:
-    state_id = ""
-    name = ""
+        state_id = ""
+        name = ""
