@@ -3,15 +3,15 @@
 import cmd
 import sys
 import re
-import json
 from models.base_model import BaseModel
-from models.__init__ import storage
+from models import storage
 from models.user import User
 from models.place import Place
 from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+import json
 
 
 class HBNBCommand(cmd.Cmd):
@@ -39,7 +39,6 @@ class HBNBCommand(cmd.Cmd):
 
     def precmd(self, line):
         """Reformat command line for advanced command syntax.
-
         Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
         (Brackets denote optional fields in usage example.)
         """
@@ -115,22 +114,25 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def validate_params(self, test):
-        regex = r'^([a-zA-Z_]\w*)=(".+"|-?\d+|-?[0-9]+\.[0-9]+|\[.*\])$'
-        obj = re.search(regex, test)
+    def regex_arguments(self, test):
+        """Validate arguments passed for console with regex"""
+        searcher = r"^([a-zA-Z_]\w*)=(\".+\"|-?\d+|-?[0-9]+\.[0-9]+|\[.*\])$"
+        obj = re.search(searcher, test)
 
         if (obj is not None):
             obj = list(obj.groups())
-
-            if (re.search(r'^".+"$', obj[1]) is not None):
+            if (re.search(r"^\".+\"$", obj[1]) is not None):
                 obj[1] = obj[1][1:-1]
+
                 length = len(obj[1])
+
                 if ('"' in obj[1]):
                     for i in range(length):
                         if (length == 1 and obj[1][0] == '"'):
                             return (None)
                         if (obj[1][i] == '"' and obj[1][i - 1] != '\\'):
                             return (None)
+
                 obj[1] = obj[1].replace("_", " ")
                 obj[1] = obj[1].replace('\\"', '"')
             elif (re.search(r"[0-9]+\.[0-9]+", obj[1]) is not None):
@@ -143,9 +145,10 @@ class HBNBCommand(cmd.Cmd):
         return (obj)
 
     def splitter(self, string):
+        """This method split the string with brackets"""
         final_list = []
         flag = 1
-        tmp = ''
+        tmp = ""
         for char in string:
             if (char == "["):
                 flag = 0
@@ -157,7 +160,7 @@ class HBNBCommand(cmd.Cmd):
                 continue
             tmp += char
 
-        if (tmp != ''):
+        if (tmp != ""):
             final_list.append(tmp)
 
         return (final_list)
@@ -168,38 +171,38 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
             return
 
-        params = self.splitter(args)
-        size_params = len(params)
+        arguments = self.splitter(args)
 
-        if params[0] not in HBNBCommand.classes:
+        len_arguments = len(arguments)
+
+        if arguments[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
 
         valid_params = []
 
-        for idx in range(1, size_params):
-            res = self.validate_params(params[idx])
+        for key_value in range(1, len_arguments):
+            regex_res = self.regex_arguments(arguments[key_value])
 
-            if (res is None):
-                # print("The format is wrong: <key>=<value>")
+            if (regex_res is None):
                 continue
 
-            if (not hasattr(self.classes[params[0]], res[0])):
-                # print(f"The key doesn't exists in the class {params[0]}")
+            if (not hasattr(self.classes[arguments[0]], regex_res[0])):
+                print("attributte doesn't exist in the class")
                 continue
 
-            if (isinstance(type(self.classes[params[0]].__dict__[res[0]]),
-                           type(res[1]))):
-                # print("The type of the value doesn't match")
-                continue
+            # if (isinstance(type(self.classes[arguments[0]].__dict__
+            #                [regex_res[0]]), type(regex_res[1]))):
+            #     print("type of attributte is incorrect")
+            #     continue
+            valid_params.append(regex_res)
 
-            valid_params.append(res)
-
-        new_instance = self.classes[params[0]]()
-        for record in valid_params:
-            setattr(new_instance, record[0], record[1])
-
-        storage.save()
+        new_instance = self.classes[arguments[0]]()
+        for savings in valid_params:
+            first = savings[0]
+            second = savings[1]
+            setattr(new_instance, first, second)
+        new_instance.save()
         print(new_instance.id)
 
     def help_create(self):
@@ -263,7 +266,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del(storage.all()[key])
+            del (storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
@@ -277,19 +280,37 @@ class HBNBCommand(cmd.Cmd):
         """ Shows all objects, or all objects of a class"""
         print_list = []
 
-        if args:
-            args = args.split(' ')[0]  # remove possible trailing args
-            if args not in HBNBCommand.classes:
-                print("** class doesn't exist **")
-                return
-            for k, v in storage._FileStorage__objects.items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
-        else:
-            for k, v in storage._FileStorage__objects.items():
-                print_list.append(str(v))
+        from os import getenv
+        storage_type = getenv('HBNB_TYPE_STORAGE')
 
-        print(print_list)
+        if storage_type == "db":
+
+            if len(args) == 0:
+                new_dict = storage.all()
+            else:
+                args = args.split(' ')[0]
+                if args not in HBNBCommand.classes:
+                    print("** class doesn't exist **")
+                    return
+                else:
+                    new_dict = storage.all(self.classes[args])
+            for k in new_dict:
+                print_list.append(str(new_dict[k]))
+            print(print_list)
+        else:
+            if args:
+                args = args.split(' ')[0]  # remove possible trailing args
+                if args not in HBNBCommand.classes:
+                    print("** class doesn't exist **")
+                    return
+                for k, v in storage._FileStorage__objects.items():
+                    if k.split('.')[0] == args:
+                        print_list.append(str(v))
+            else:
+                for k, v in storage._FileStorage__objects.items():
+                    print_list.append(str(v))
+
+            print(print_list)
 
     def help_all(self):
         """ Help information for the all command """
