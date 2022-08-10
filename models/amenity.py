@@ -5,5 +5,11 @@ from sqlalchemy import Column, String
 import models
 
 
-class Amenity(BaseModel):
-    name = ""
+class Amenity(BaseModel, Base):
+    """Amenity Class"""
+    if models.storage_type == 'db':
+        __tablename__ = "amenities"
+        name = Column(String(128), nullable=False)
+
+    else:
+        name = ""
