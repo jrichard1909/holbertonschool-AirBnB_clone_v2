@@ -41,15 +41,11 @@ class DBStorage:
                 result = self.__session.query(v).all()
                 for row in result:
                     key_dict = row.__class__.__name__ + '.' + row.id
-                    if "_sa_instance_state" in row.__dict__:
-                        del row.__dict__["_sa_instance_state"]
                     all_dict[key_dict] = row
         else:
             result = self.__session.query(cls).all()
             for row in result:
                 key_dict = row.__class__.__name__ + '.' + row.id
-                if "_sa_instance_state" in row.__dict__:
-                    del row.__dict__["_sa_instance_state"]
                 all_dict[key_dict] = row
 
         return (all_dict)
