@@ -6,10 +6,23 @@ using the function do_pack and that distributes an archive to
 your web servers, using the function do_deploy
 """
 
-from fabric.api import put, run, env
+from datetime import datetime
+from fabric.api import local, put, run, env
 from os.path import exists
 
 env.hosts = ['18.207.125.211', '3.91.17.213']
+
+
+def do_pack():
+    """generates a .tgz file"""
+    try:
+        date = datetime.now().strftime("%Y%m%d%H%M%S")
+        local("mkdir -p versions")
+        fileName = "versions/web_static_{}.tgz".format(date)
+        local("tar -cvzf {} web_static".format(fileName))
+        return fileName
+    except Exception:
+        return None
 
 
 def do_deploy(archive_path):
