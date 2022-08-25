@@ -33,7 +33,7 @@ def do_deploy(archive_path):
         fileFullName = archive_path.split("/")[-1]
         fileName = fileFullName.split(".")[0]
         path = "/data/web_static/releases/"
-        put(archive_path, '/tmp/')
+        put(archive_path, '/tmp/{}'.format(fileFullName))
         run('mkdir -p {}{}/'.format(path, fileName))
         run('tar -xzf /tmp/{} -C {}{}/'.format(fileFullName, path, fileName))
         run('rm /tmp/{}'.format(fileFullName))
