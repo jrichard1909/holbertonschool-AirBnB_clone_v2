@@ -6,6 +6,7 @@ app = Flask(__name__)
 
 @app.route('/', strict_slashes=False)
 def hello():
+    """ Function called with / route """
     name = request.args.get("name", "World")
     return f'Hello HBNB!, {escape(name)}!'
 
