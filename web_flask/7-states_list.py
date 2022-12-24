@@ -5,13 +5,11 @@ from models import storage
 app = Flask('web_flask')
 app.url_map.strict_slashes = False
 
-
 @app.route('/states_list')
 def list_of_states():
     """Render html with unordered list of states from `storage`"""
-    states = sorted(storage.all('State').values(), key=lambda s: s.name)
+    states = sorted(storage.all("State").values(), key=lambda s: s.name)
     return render_template('7-states_list.html', states=states)
-
 
 @app.teardown_appcontext
 def teardown_db(*args, **kwargs):
